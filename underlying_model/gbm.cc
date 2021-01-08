@@ -11,14 +11,15 @@ using namespace Eigen;
 void gbm( double& x0, double& xout, 
 		  int i, double w, 
 		  double mu, double sigma ) {
-	xout = x0 * exp( (mu-sigma*sigma/2.) * i + sigma * w );
+	xout = x0 * exp( (mu-sigma*sigma/2.)*i + sigma*w );
 }
 
 void gbm_em( VectorXd& xin, VectorXd& xout, 
 			 double dt, VectorXd dw, 
 			 double mu, double sigma, int m ) {
 	assert ( xin.rows()==m && xout.rows()==m && dw.rows()==m );
-	xout = xin + mu*dt*xin + (sigma*sqrt(dt)*xin.array()*dw.array()).matrix();
+	for ( int j=0; j<m; ++j ) 
+		xout(j) = xin(j) + mu*dt*xin(j) + sigma*sqrt(dt)*xin(j)*dw(j);
 }
 
 int main() {
@@ -37,9 +38,9 @@ int main() {
 	normal_distribution<double> n(0,1);
 
 	cout << setprecision(10) << x0 << endl;
-	for ( int i=1; i<nt; ++i ) {
+	for ( int i=1; i<=nt; ++i ) {
 		double w = sqrt(i) * n(mt);
-		gbm(x0,xout,w,mu,sigma,i);
+		gbm(x0,xout,i,w,mu,sigma);
 		cout << setprecision(10) << xout << endl;
 	}
 }
@@ -65,7 +66,7 @@ int main() {
 
 	xin=x0_vec;
 	cout << setprecision(10) << xin.transpose() << endl;
-	for ( int i=1; i<int(nt/dt); ++i ) {
+	for ( int i=1; i<=int(nt/dt); ++i ) {
 		VectorXd dw(m);
 		for ( int j=0; j<m; ++j ) dw(j) = n(mt);
 		gbm_em(xin,xout,dt,dw,mu,sigma,m);

@@ -7,7 +7,7 @@ pricegen=${basedir}/../underlying_model/gbm.cc
 option=${basedir}/../option_pricing/european_call.cc
 
 s0=1.0
-T=100 #day
+nt=100 #maturity
 r=0.01
 
 # gbm
@@ -23,9 +23,29 @@ xi=0.1
 
 [ ! -d ${runname} ] && mkdir ${runname}
 cd ${runname}
-[ ! -f ${runname}.log ] && echo "s0,r,mu,sigma,theta,alpha,kappa,xi,T" >> ${runname}.log
+[ ! -f ${runname}.log ] && echo "s0,r,mu,sigma,theta,alpha,kappa,xi,nt" | tee ${runname}.log
 
-echo "${s0},${r},${mu},${sigma},${theta},${alpha},${kappa},${xi},${T}" >> ${runname}.log
+echo "${s0},${r},${mu},${sigma},${theta},${alpha},${kappa},${xi},${nt}" | tee -a ${runname}.log
+
+sed "s/s0 = .*$/s0 = ${s0}/" ${pricegen}
+sed "s/nt = .*$/nt = ${nt}/" ${pricegen}
+sed "s/r = .*$/r = ${r}/" ${pricegen}
+sed "s/mu = .*$/mu = ${mu}/" ${pricegen}
+sed "s/sigma = .*$/sigma = ${sigma}/" ${pricegen}
+sed "s/theta = .*$/theta = ${theta}/" ${pricegen}
+sed "s/kappa = .*$/kappa = ${kappa}/" ${pricegen}
+sed "s/xi = .*$/xi = ${xi}/" ${pricegen}
+
+sed "s/s0 = .*$/s0 = ${s0}/" ${option}
+sed "s/nt = .*$/nt = ${nt}/" ${option}
+sed "s/r = .*$/r = ${r}/" ${option}
+sed "s/mu = .*$/mu = ${mu}/" ${option}
+sed "s/sigma = .*$/sigma = ${sigma}/" ${option}
+sed "s/theta = .*$/theta = ${theta}/" ${option}
+sed "s/kappa = .*$/kappa = ${kappa}/" ${option}
+sed "s/xi = .*$/xi = ${xi}/" ${option}
+
+echo "finished global setting." | tee -a ${runname}.log
 
 # 1. analytic
 
